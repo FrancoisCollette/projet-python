@@ -3,15 +3,20 @@ import numpy as np
 #constantes
 h =0.5                      # m
 ns = 1.000272983820855
-Tsol = 303.15
-Th = 288.15                 # K (15°C)
-def profilTemperatureLin(z):                            # ressort tableau T(z), dT/dz
+Ts = 288.15                 #tempé standard
+Tsol = 303.15               # en K (30°C)
+Th = 288.15                 # 15°C
+
+
+def profilTemperatureLin(z): # ressort tableau T(z), dT/dz
     if z < 0:
-        return Tsol, 0
+        return [Tsol, 0]
     elif 0 <= z < h:
-        return (Th - Tsol)/h *z + Tsol, (Th - Tsol)/h   # pente => (Th - Ts)/h 
-    else:
-        return Th, 0
+        T = (Th - Tsol)/h *z + Tsol
+        dTdz = (Th - Tsol)/h 
+        return [ T, dTdz ]  # pente => (Th - Ts)/h 
+    elif z >= h:
+        return [ Th, 0 ]
 
 
 def odefunction(x, y, profilTemperature):
@@ -19,16 +24,22 @@ def odefunction(x, y, profilTemperature):
     i = y[1]
     T, dTdz = profilTemperature(z)
     
+    n = 1+(ns -1) *Ts/T
+    dn = (1 - ns)*Ts*dTdz /T**2
+    
     dy = np.zeros(2)
     dy[0] = np.tan(i)
-    dy[1] = (((1 - ns)*Tsol/T**2) * dTdz) * (1/ (1+(ns -1)*Tsol/T))
+    dy[1] = dn * (1/ n)
     return dy
 
 
 
 def trajetRayonEuler(interval, y0, dx, profilTemperature):
     x0, xf = interval
-    
+    if x0 == xf:
+        print("attention l'interval est mal coisit : x0 = xf")
+        return [x0, y0]
+
     x = np.arange(x0, xf +dx, dx)
     y = np.zeros( (2 ,len(x)) )
     x[0] = x0
@@ -52,8 +63,13 @@ def trajetRayonEuler(interval, y0, dx, profilTemperature):
 
 
 from scipy.integrate import solve_ivp as ode45
+def crash(t, y):
+        return y[0]     # = z, s'annule quand le rayon touche le sol
+
+crash.terminal = True   # stoppe l'intégration quand z=0
+crash.direction = -1    # stoppe seulement quand z descend vers 0
 
 def  trajetRayonIVP(interval, y0, rtol, profilTemperature):
     
-    sol = ode45(lambda x,y: odefunction(x, y, profilTemperature), interval, y0, atol=rtol, rtol=rtol)
+    sol = ode45(lambda x,y: odefunction(x, y, profilTemperature), interval, y0, atol=rtol, rtol=rtol, events=crash)
     return [sol.t, sol.y]
