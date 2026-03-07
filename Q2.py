@@ -4,39 +4,12 @@ import matplotlib.pyplot as plt
 import RechercheRacine as r
 import SimRayon as sim
 
-solution = sim.trajetRayonIVP([0, 1000], [1, -0.1*np.pi/180], 1e-10, sim.profilTemperatureLin)
-if (solution):
-    print('IVP ok : ', solution)
-    
-solution2 = sim.trajetRayonEuler([0, 1000], [1, -0.1*np.pi/180], 0.1, sim.profilTemperatureLin)
-if (solution2):
-    print('euler ok : ', solution2)
-    
-plt.figure()
-plt.plot(solution[0], solution[1][0])
-plt.title("Trajet IVP")
-plt.figure()
-plt.plot(solution2[0], solution2[1][0])
-plt.title("Trajet Euler")
 
-
-
-
-def fct(x):
-    return x**3 + x -1
-
-print(r.secante(fct, 1, -0.2, 1e-6))
-
-def cos(x):
-    return np.cos(x)
-
-print(r.secante(cos, -1, 2, 1e-6))
-
-
+# ---------- Question 2.4 ----------
 
 # variables initiales et solution à 1000m par ode45
 dist = [0, 1000]
-y0 = [1, -0.2*np.pi/180]
+y0 = np.array([1, -0.2*np.pi/180])
 tolerance = 1e-10
 solIVP = sim.trajetRayonIVP(dist, y0, tolerance, sim.profilTemperatureLin)
 zIVP = solIVP[1][0][-1] #prendre toute dernière val de z dans y[]
@@ -76,9 +49,7 @@ plt.legend(loc='best', fontsize='16')
 
 
 
-
-
-
+# ---------- Question 2.5 ----------
 
 plt.figure(figsize=(15, 10))
 plt.xticks(fontsize=14)
