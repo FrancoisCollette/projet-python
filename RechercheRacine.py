@@ -42,17 +42,20 @@ def secante(f, x0, x1, tol):
     x = c = x1          #initialisation de x à nombre quelquonque, c : val courante
     p = x0              # p : val précédente
     i = 0
+    fp = f(p)
+    fc = f(c)
     
     while  i <= 25 and abs(x - p) > tol :
-        fp = f(p)
-        fc = f(c)
         if fp == fc:
             print("erreur : division par 0 dans l'algorythme de la sécante car f(xn) = f(xn-1)")
             return [x, -1]
         x = c - fc*( (c - p) / (fc - fp) )
         p = c
+        fp = fc
         c = x
+        fc = f(c)
         i += 1    
     if i > 25: return [x, -1] #la fct n'a pas convergé
     return [x, 0]
+
 
