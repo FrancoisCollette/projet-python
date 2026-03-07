@@ -1,3 +1,4 @@
+import numpy as np #nécessaire pour la correction apparemment
 def bissection(f, x0, x1, tol):
     a = f(x0)
     b = f(x1)
@@ -17,7 +18,7 @@ def bissection(f, x0, x1, tol):
         statut = 0
         return [x1, statut]
     
-    imgX = 1000
+    imgX = 1000 #initialisation à un grand nombre
     x = x0
     while abs(x1 - x0) > tol:
         x = (x0 + x1)/2
@@ -38,32 +39,20 @@ def bissection(f, x0, x1, tol):
 
 
 def secante(f, x0, x1, tol):
-    x = 1000
-    p = x0# valeur précédente
-    c = x1# valeur courante
+    x = c = x1          #initialisation de x à nombre quelquonque, c : val courante
+    p = x0              # p : val précédente
     i = 0
+    
     while  i <= 25 and abs(x - p) > tol :
         fp = f(p)
         fc = f(c)
         if fp == fc:
             print("erreur : division par 0 dans l'algorythme de la sécante car f(xn) = f(xn-1)")
-            statut = -1
-            break
+            return [x, -1]
         x = c - fc*( (c - p) / (fc - fp) )
-        p =c
+        p = c
         c = x
         i += 1    
-    if i > 25: statut = -1 #la fct n'a pas convergé
-    else: statut = 0
-    return [x, statut]
+    if i > 25: return [x, -1] #la fct n'a pas convergé
+    return [x, 0]
 
-
-
-
-#test
-from numpy.polynomial import Polynomial as poly
-f = poly([-1, 2, 1])
-rslt = bissection(f, -2, 1, 1e-6)
-print(rslt)
-rslt = secante(f, -2, 1, 1e-6)
-print(rslt)
