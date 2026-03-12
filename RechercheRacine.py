@@ -19,7 +19,6 @@ def bissection(f, x0, x1, tol):
         print("Erreur: les 2 valeurs choisies sont de même signe")
         return [x, statut]
     
-    imgX = 1000     #initialisation à un grand nombre
     x = x0
     while abs(x1 - x0) > tol:
         x = (x0 + x1)/2
