@@ -1,4 +1,5 @@
 import numpy as np
+import time
 import matplotlib.pyplot as plt
 import RechercheRacine as r
 import SimRayon as sim
@@ -7,8 +8,9 @@ import constantes as c    # ou encore from constantes import interval y0 dx nbRa
 # ---------- Question 2.4 ----------
 
 # définit la valeur correcte comme z en xf par IVP
-# cacule z en xf par Euler pour chaque dx
+# cacule z en xf par Euler pour chaque dx ainsi que le temps de calcul nécessaire à Euler
 # erreur commise comme différence des 2 solutions (IVP et Euler) trouvées
+# plot un graphique de l'erreur et du temps de calcul en fonction du pas
 
 def tolerance():
     solIVP = sim.trajetRayonIVP(c.Xinterval, c.y0Tol, c.IVPtol, sim.profilTemperatureLin)
@@ -16,27 +18,38 @@ def tolerance():
     print('solution par IVP : ', zIVP)
     print('les erreurs en x= 1000m en fonction du pas sont :')
     
-    errTab = np.zeros(len(c.dxTab))
+    errTab = np.zeros( len(c.dxTab) )
+    tempsTab = np.zeros( len(c.dxTab) )
     i = 0
     for pas in c.dxTab:
+        t0 = time.perf_counter()
         solEuler = sim.trajetRayonEuler(c.Xinterval, c.y0Tol, pas, sim.profilTemperatureLin)
+        tf = time.perf_counter()
+        
         zEuler = solEuler[1][0][-1]
         erreur = abs(zEuler - zIVP)
         errTab[i] = erreur
+        tempsTab[i] = tf - t0
         i += 1
         print(erreur)
-
-    plt.figure(figsize=(15, 10))
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
-    plt.title(f"Graphique de l'erreur commise en {c.Xinterval[1]}m en fonction du pas", fontsize=20)
-    plt.xlabel('taille du pas (m) (échelle logarithmique)', fontsize=16)
-    plt.ylabel('erreur (m)', fontsize=16)
-
-    plt.plot(c.dxTab, errTab, linewidth = 2)
-    plt.xscale('log')
-    plt.xlim(np.max(c.dxTab), np.min(c.dxTab)) #inverse axe x pour plus de lisibilité : de max -> min
     
+    # Double axe Y pour superposer erreur et temps
+    fig, ax1 = plt.subplots(figsize=(15, 10))
+    
+    ax1.set_xlabel('taille du pas (m) (échelle logarithmique)', fontsize=16)
+    ax1.set_ylabel('erreur (m)', fontsize=16, color='b')
+    ax1.plot(c.dxTab, errTab, 'b', linewidth=2, label='erreur')
+    ax1.tick_params(axis='y', labelcolor='b', labelsize = 12)
+    ax1.set_xscale('log')
+    ax1.set_xlim(np.max(c.dxTab), np.min(c.dxTab))
+    
+    ax2 = ax1.twinx()  # deuxième axe Y qui partage le même axe X
+    ax2.set_ylabel('temps de calcul (s)', fontsize=16, color='g')
+    ax2.plot(c.dxTab, tempsTab, 'g', linewidth=2, label='temps')
+    ax2.tick_params(axis='y', labelcolor='g', labelsize = 12)
+    
+    plt.title("Erreur et temps de calcul en fonction du pas", fontsize=24)
+    fig.legend(loc='upper right', fontsize=14)
     return 0
 
 
@@ -101,6 +114,7 @@ def imagesMultiples(plot):
                 solutions[j] = racine
                 j += 1
     
+    statut = 0
     if plot == True:
         parcoursI()
         for i in solutions:
@@ -111,13 +125,7 @@ def imagesMultiples(plot):
             plt.plot(x, y[0], 'r', linewidth = 3, label = f'rayon dont z(xf) = zf avec i0 = {i} (rad)')
             plt.legend(loc='best', fontsize='16')
     
-    statut = 0
     return np.array([solutions[0], solutions[1], statut])
-
-
-# tolerance(interval, c.y0Tol, c.IVPtol, c.dxTab, sim.profilTemperatureLin)
-# parcoursI(c.iMin, c.iMax, c.nbRayons, c.Xinterval, c.y0, c.dx)
-# imagesMultiples()
 
 
 
