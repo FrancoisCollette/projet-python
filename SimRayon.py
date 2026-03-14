@@ -1,11 +1,11 @@
 import numpy as np
-
+import constantes as c
 #constantes
-h =0.5                      # m
-ns = 1.000272983820855
-Ts = 288.15                 #tempé standard
-Tsol = 303.15               # en K (30°C)
-Th = 288.15                 # 15°C
+h = c.h
+ns = c.ns
+Ts = c.Ts
+Tsol = c.Tsol
+Th = c.Th
 
 
 def profilTemperatureLin(z): # ressort tableau T(z), dT/dz
@@ -37,7 +37,7 @@ def odefunction(x, y, profilTemperature):
 def trajetRayonEuler(interval, y0, dx, profilTemperature):
     x0, xf = interval
     if x0 == xf:
-        print("attention l'interval est mal coisit : x0 = xf")
+        print("attention l'interval est mal choisit : x0 = xf")
         return [x0, y0]
 
     x = np.arange(x0, xf +dx, dx)
@@ -52,7 +52,6 @@ def trajetRayonEuler(interval, y0, dx, profilTemperature):
         znext = y[0, j] + dx*dy[0]
         inext = y[1, j] + dx*dy[1]
         if znext <= 0:
-            print('le rayon rentre dans le sol')
             return [ x[: j+1], y[:, :j+1] ]         # une case de moins (car la case next n'est pas remplie)
         
         y[0, j +1] = znext
@@ -69,7 +68,7 @@ def crash(t, y):
 crash.terminal = True   # stoppe l'intégration quand z=0
 crash.direction = -1    # stoppe seulement quand z descend vers 0
 
-def  trajetRayonIVP(interval, y0, rtol, profilTemperature):
+def  trajetRayonIVP(interval, y0, tol, profilTemperature):
     
-    sol = ode45(lambda x,y: odefunction(x, y, profilTemperature), interval, y0, atol=rtol, rtol=rtol, events=crash)
+    sol = ode45(lambda x,y: odefunction(x, y, profilTemperature), interval, y0, atol=tol, rtol=tol, events=crash)
     return [sol.t, sol.y]
