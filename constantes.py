@@ -13,7 +13,7 @@ Th = 25 + 273.15            # (K)  15° pour Q2&3 / 25° Q4
 # ----- conditions sur l'EDO -----
 
 Xinterval = [0, 1000]       # bornes de l'intervalle de resolution  (m)
-y0 = [1, 0 *np.pi/180]      # conditions initiales [z0, i0]         (m , rad)
+y0 = [0.49 , 0 *np.pi/180]      # conditions initiales [z0, i0]         (m , rad)
 dx = 0.1                    # pas pour la résolution par Euler      (m)
 IVPtol = 1e-10              # tolérance (rtol et atol) pour IVP
 
@@ -31,5 +31,5 @@ racineTol = 1e-6            # tolérance sur la recherche de racines    (m)
 
 
 # ----- Question 4 -----
-
-imgFile = 'voitureProjet.jpg'
+hauteurImage = 2            # Hauteur arbitraire de l'image            (m)
+imgFile = 'ford917circuit_fullResolution.jpg'
