@@ -13,15 +13,15 @@ Th = 25 + 273.15            # (K)  15° pour Q2&3 / 25° Q4
 # ----- conditions sur l'EDO -----
 
 Xinterval = [0, 1000]       # bornes de l'intervalle de resolution  (m)
-y0 = [0.49 , 0 *np.pi/180]      # conditions initiales [z0, i0]         (m , rad)
+y0 = [1.5 , 0 *np.pi/180]   # conditions initiales [z0, i0]         (m , rad)
 dx = 0.1                    # pas pour la résolution par Euler      (m)
 IVPtol = 1e-10              # tolérance (rtol et atol) pour IVP
 
 
 # ----- Questions 2 & 3 -----
 y0Tol = [1, -0.25 *np.pi/180]
-dxTab = np.logspace(1, -3, 10) # tableau des différents dx à tester (attention logspace prend des puissances de 10 en argument)
-nbRayons = 50               # nombre de rayons à tracer en Q2.5
+dxTab = np.logspace(1, -3, 30) # tableau des différents dx à tester (attention logspace prend des puissances de 10 en argument)
+nbRayons = 100              # nombre de rayons à tracer en Q2.5
 zf = 1.5                    # hauteur de l'observateur                 (m)
 iMin = -1 *np.pi/180        # angle min de l'interval de i pour Q2.5   (rad)
 iMax = 0.1 *np.pi/180       # idem max                                 (rad)
@@ -31,5 +31,15 @@ racineTol = 1e-6            # tolérance sur la recherche de racines    (m)
 
 
 # ----- Question 4 -----
-hauteurImage = 2            # Hauteur arbitraire de l'image            (m)
+hauteurImage = 2            # hauteur arbitraire de l'image            (m)
+bornesImageObs = [6.0, -6.0]# bornes de la taille de l'image perçue    (m)
+lignesNouvelleImage = 1000  # nombre de lignes de pixel dans l'image perçue par l'observateur, correspond au nombre d'appel à Euler
+décallage = 1               # décallage du z_app vers le haut          (m)
 imgFile = 'ford917circuit_fullResolution.jpg'
+
+
+# ----- Question bonus -----
+h2 = 2.5                      # limite 2e gradient de température (m)
+h3 = 3.0                    # limite supérieure du 2e gradient (m)
+Th2 = Th                    # gradient symétrique au 1er
+Th3 = Tsol

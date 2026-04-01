@@ -19,6 +19,30 @@ def profilTemperatureLin(z): # ressort tableau T(z), dT/dz
         return [ Th, 0 ]
 
 
+def profilTempLinTrilpeImg(z):
+    if z < 0:
+        return [Tsol, 0]
+    elif z < h:
+        T = (Th - Tsol)/h * z + Tsol
+        dTdz = (Th - Tsol)/h
+        return [T, dTdz]
+    elif z < c.h2:
+        return [Th, 0]
+    elif z < c.h3:
+        T = (c.Th3 - c.Th2)/(c.h3 - c.h2) * (z - c.h2) + c.Th2
+        dTdz = (c.Th3 - c.Th2)/(c.h3 - c.h2)
+        return [T, dTdz]
+    else:
+        return [c.Th3, 0]
+'''
+zs = np.linspace(0, 2, 100)
+ts = np.zeros(100)
+j = 0
+for z in zs:
+    ts[j] = profilTempLinTrilpeImg(z)[0]
+    j += 1
+print(ts)'''
+    
 def odefunction(x, y, profilTemperature):
     z = y[0]
     i = y[1]

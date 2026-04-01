@@ -68,4 +68,3 @@ def secante(f, x0, x1, tol):
         if i >= 50: return [x, -1] #la fct n'a pas convergé
 
     return [x, 0]
-
