@@ -17,8 +17,6 @@ import constantes as c
 def tolerance():
     solIVP = sim.trajetRayonIVP(c.Xinterval, c.y0Tol, c.IVPtol, sim.profilTemperatureLin)
     zIVP = solIVP[1][0][-1]             #prendre toute dernière val de z dans y[]
-    print('solution par IVP : ', zIVP)
-    print('les erreurs en x= 1000m en fonction du pas sont :')
     
     errTab = np.zeros( len(c.dxTab) )
     tempsTab = np.zeros( len(c.dxTab) )
@@ -33,40 +31,25 @@ def tolerance():
         errTab[i] = erreur
         tempsTab[i] = tf - t0
         i += 1
-        print(erreur)
     
     plt.figure(figsize=(15, 10))
     plt.loglog(c.dxTab, errTab, 'ob-', linewidth=2, label='erreur')
-    plt.xlabel('taille du pas (m)', fontsize=24)
-    plt.ylabel('erreur (m)', fontsize=24,)
+    plt.xlabel('taille du pas (m)', fontsize=30)
+    plt.ylabel('erreur (m)', fontsize=30,)
     plt.xlim(np.max(c.dxTab), np.min(c.dxTab)) # retourne l'axe pour avoir grand pas à gauche et petits à droite
-    plt.tick_params(labelsize = 20)
+    plt.tick_params(labelsize = 26)
+    plt.grid(True)
     plt.savefig('erreur.pdf', bbox_inches='tight')
     
     plt.figure(figsize=(15,10))
-    plt.xlabel('taille du pas (m)', fontsize=24)
+    plt.xlabel('taille du pas (m)', fontsize=30)
     plt.loglog(c.dxTab, tempsTab, 'og-', linewidth=2, label='temps')
-    plt.ylabel('temps de calcul (s)', fontsize=24)
+    plt.ylabel('temps de calcul (s)', fontsize=30)
     plt.xlim(np.max(c.dxTab), np.min(c.dxTab))
-    plt.tick_params(labelsize = 20)
+    plt.tick_params(labelsize = 26)
+    plt.grid(True)
     plt.savefig('temps.pdf', bbox_inches='tight')
 
-    '''
-    fig, ax1 = plt.subplots(figsize=(15, 10))       # Double axe Y pour superposer erreur et temps
-    ax1.set_xlabel('taille du pas (m) (échelle logarithmique)', fontsize=16)
-    ax1.set_ylabel('erreur (m)', fontsize=16, color='b')
-    ax1.plot(c.dxTab, errTab, 'b', linewidth=2, label='erreur')
-    ax1.tick_params(axis='y', labelcolor='b', labelsize = 12)
-    ax1.set_xscale('log')
-    ax1.set_xlim(np.max(c.dxTab), np.min(c.dxTab))
-    
-    ax2 = ax1.twinx()                               # deuxième axe Y qui partage le même axe X
-    ax2.set_ylabel('temps de calcul (s)', fontsize=16, color='g')
-    ax2.plot(c.dxTab, tempsTab, 'g', linewidth=2, label='temps')
-    ax2.tick_params(axis='y', labelcolor='g', labelsize = 12)
-    
-    plt.title("Erreur et temps de calcul en fonction du pas", fontsize=24)
-    fig.legend(loc='lower left',fontsize=16)'''
     return 0
 
 
@@ -77,7 +60,7 @@ def tolerance():
 # si le rayon rentre dans le sol, il est plot en rouge, en vert sinon
 # nbAngles étant le nombre d'angles et donc de rayons différents considérés
 
-def parcoursI(profilTemp = sim.profilTemperatureLin):
+def parcoursI(profilTemp = sim.profilTemperatureLin, z0 = c.y0):
     angle = np.linspace(c.iMin, c.iMax, c.nbRayons)
     
     plt.figure(figsize=(15, 10))
@@ -85,8 +68,8 @@ def parcoursI(profilTemp = sim.profilTemperatureLin):
     plt.ylabel('hauteur du rayon (m)', fontsize=24)
     plt.tick_params(labelsize = 20)
     for i in angle:
-        c.y0[1] = i
-        x, y = sim.trajetRayonEuler(c.Xinterval, c.y0, c.dx, profilTemp)
+        z0[1] = i
+        x, y = sim.trajetRayonEuler(c.Xinterval, z0, c.dx, profilTemp)
         if x[-1] < 1000 :
             plt.plot(x, y[0], color = 'red', linewidth = 1)
             
@@ -136,7 +119,6 @@ def imagesMultiples(plot=False, profilTemp = sim.profilTemperatureLin):
     
     statut = 0
     if plot == True:
-        #parcoursI(profilTemp)
         plt.figure(figsize=(15, 10))
         for i in solutions:
             if i is None: 
@@ -256,45 +238,47 @@ def imageBacktracing(profilTemp = sim.profilTemperatureLin):
     plt.imshow(nouvelleImage, extent=[0, 3, -6, 6])
     print("suppression des extrémités non visibles de l'image ...")
     j=0
-    while( np.all(nouvelleImage[0] == 0) ):         # tronque bande noire de dessus, démarre du haut et supprime chaque bande trouvée jusqu'a ce qu'il y ait de la couleur
-        nouvelleImage = nouvelleImage[1 :]
+    while j < len(nouvelleImage) and np.all(nouvelleImage[j] == 0): # tronque bande noire de dessus, démarre du haut et supprime chaque bande trouvée jusqu'a ce qu'il y ait de la couleur
         j +=1
+    nouvelleImage = nouvelleImage[j:]
     zmax = z_apps_balayage[j]                       # z_app de la première ligne non noire
       
     derniere_ligne = 0                              # tronque bande noire du dessous, on supprime la fin du tab à pt de la 1er ligne noire
     for i in range(np.shape(nouvelleImage)[0]):
         if not np.all(nouvelleImage[i] == 0):
             derniere_ligne = i
-    nouvelleImage = nouvelleImage[:derniere_ligne + 1]
+    nouvelleImage = nouvelleImage[:derniere_ligne]
     zmin = z_apps_balayage[j + derniere_ligne]      # z_app de la dernière ligne non noire
     
     print('100% - terminé! \n')
     print("L'image s'étant de", zmax, 'm à', zmin,'m')
     plt.figure()
     plt.imshow(imageArray, extent=[0, 3, 0, hIm], aspect='auto')
-    plt.xlabel("largeur (m)", fontsize=14)
-    plt.ylabel("altitude (m)", fontsize=14)
-    plt.savefig('image_originaleBis.pdf', dpi=600, bbox_inches='tight' )
+    plt.tick_params(labelsize = 16)
+    plt.xlabel("largeur (m)", fontsize=16)
+    plt.ylabel("altitude (m)", fontsize=16)
+    plt.savefig('image_originale.pdf', dpi=300, bbox_inches='tight' )
 
     plt.figure()
     plt.imshow(nouvelleImage, extent=[0, 3, zmin, zmax])
-    graduations = np.arange(np.ceil(zmin * 2) / 2, np.floor(zmax * 2) / 2 + 0.5, 0.5)
-    graduations = np.concatenate([[zmin], graduations, [zmax]])
-    graduations = np.unique(np.round(graduations, 3))
+    graduations = np.arange(np.ceil(zmin * 2)/2, np.floor(zmax * 2) / 2 + 0.5, 0.5)
+    graduations = np.concatenate([zmin], [ graduations, [zmax] ])
+    graduations = np.unique(np.round(graduations, 1)) # np.uinique supprime les valeurs en double et trie par ordre croissant
     plt.yticks(graduations)
-    plt.xlabel("largeur (m)", fontsize=14)
-    plt.ylabel("altitude (m)", fontsize=14)
-    plt.savefig('image_modifiéeBis.pdf', dpi=600, bbox_inches='tight')
+    plt.tick_params(labelsize = 16)
+    plt.xlabel("largeur (m)", fontsize=16)
+    plt.ylabel("altitude (m)", fontsize=16)
+    plt.savefig('image_modifiée.pdf', dpi=300, bbox_inches='tight')
     
     plt.figure(figsize=(10, 15))
     plt.plot(z_sources_direct,   z_apps_direct,   'b', linewidth=2, label='rayons directs')
     plt.plot(z_sources_refracte, z_apps_refracte, 'r', linewidth=2, label='rayons réfractés')
-    plt.xlabel('position réelle de la source (m)', fontsize=24)
-    plt.ylabel("position perçue par l'observateur (m)", fontsize=24)
-    plt.tick_params(labelsize = 20)
+    plt.xlabel('position réelle de la source (m)', fontsize=28)
+    plt.ylabel("position perçue par l'observateur (m)", fontsize=28)
+    plt.tick_params(labelsize = 24)
     plt.legend(loc='best', fontsize=24)
     plt.grid(True)
-    plt.savefig('graphePositionsVerticalesBis.pdf', dpi=300)
+    plt.savefig('graphePositionsVerticalesBis.pdf')
     return 0
 
 
@@ -302,14 +286,15 @@ def imageBacktracing(profilTemp = sim.profilTemperatureLin):
 
 # fonction d'aide à la visualisation du phénomène
 def T(profilTemp = sim.profilTemperatureLin):
-    ztab = np.linspace(0, c.bornesImageObs[0], 100)
+    ztab = np.linspace(0, c.bornesImageObs[0], 10000)
     Ttab = np.zeros(100)
-    j = 0
-    for z in ztab:
-        Ttab[j] = profilTemp(z)[0]
-        j +=1
-    plt.figure(figsize=(20, 5))
-    plt.plot(ztab, Ttab, linewidth=2)
+    Ttab = np.array([profilTemp(z)[0] for z in ztab])
+    
+    plt.figure(figsize=(7, 6))
+    plt.plot(ztab, Ttab, '-', linewidth=2)
     plt.xlabel("altitude (m)", fontsize=24)
     plt.ylabel("température (K)", fontsize=24)
     plt.tick_params(labelsize = 20)
+    plt.grid(True)
+    plt.savefig('profilTemp.pdf', bbox_inches='tight')
+

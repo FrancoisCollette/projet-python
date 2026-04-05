@@ -4,16 +4,16 @@ import numpy as np
 ns = 1.000272983820855      # constante de Gladstone
 ps = 1e5                    # pression standard
 Ts = 288.15                 # t° standard
-Tsol = 50 + 273.15          # (K)  30° pour Q2&3 / 50° Q4
+Tsol = 30 + 273.15          # (K)  30° pour Q2&3 / 50° Q4
 h = 0.5                     # hauteur limite entre t° constante et t° linéaire dans profilTemperature (m)
-Th = 25 + 273.15            # (K)  15° pour Q2&3 / 25° Q4
+Th = 15 + 273.15            # (K)  15° pour Q2&3 / 25° Q4
 
 
 
 # ----- conditions sur l'EDO -----
 
 Xinterval = [0, 1000]       # bornes de l'intervalle de resolution  (m)
-y0 = [1.5 , 0 *np.pi/180]   # conditions initiales [z0, i0]         (m , rad)
+y0 = [1.0 , 0 *np.pi/180]   # conditions initiales [z0, i0]         (m , rad)
 dx = 0.1                    # pas pour la résolution par Euler      (m)
 IVPtol = 1e-10              # tolérance (rtol et atol) pour IVP
 
@@ -33,13 +33,7 @@ racineTol = 1e-6            # tolérance sur la recherche de racines    (m)
 # ----- Question 4 -----
 hauteurImage = 2            # hauteur arbitraire de l'image            (m)
 bornesImageObs = [6.0, -6.0]# bornes de la taille de l'image perçue    (m)
-lignesNouvelleImage = 1000  # nombre de lignes de pixel dans l'image perçue par l'observateur, correspond au nombre d'appel à Euler
+lignesNouvelleImage = 3000  # nombre de lignes de pixel dans l'image perçue par l'observateur, correspond au nombre d'appel à Euler
 décallage = 1               # décallage du z_app vers le haut          (m)
-imgFile = 'ford917circuit_fullResolution.jpg'
+imgFile = 'ferrariUltraHighRes.jpg'
 
-
-# ----- Question bonus -----
-h2 = 2.5                      # limite 2e gradient de température (m)
-h3 = 3.0                    # limite supérieure du 2e gradient (m)
-Th2 = Th                    # gradient symétrique au 1er
-Th3 = Tsol
